@@ -12,7 +12,7 @@ import argparse
 parser = argparse.ArgumentParser(description='Get subdomains from stdin and search for dependency confusion.')
 parser.add_argument("-th", help="Number of concurrence threads", default=10, type=int)
 parser.add_argument("-to", help="Timeout (in seconds)",  default=15, type=int, required=False)
-parser.add_argument("-a", help="String to append in the end of url. E.g: -a \"?token=foo\"",  default="", required=False)
+parser.add_argument("-a", help="String to append in the end of url. E.g: -a=\"?token=foo\"",  default="", required=False)
 parser.add_argument("-v", help="Verbose mode", type=int, default=0, required=False)
 parser.add_argument("--version", help="Show version and exit", action="store_true")
 parser.add_argument("-s", help="Silent, only shows the useful results", action="store_true")
@@ -21,11 +21,19 @@ parser.add_argument("-link", help="Show full link to the npm possible vulnerable
 args = parser.parse_args()
 user_input = vars(args)
 
+
+
 def sprint(message, require_verbose:int = 0):
     if user_input["s"] == True:
         return
     if user_input["v"] >= require_verbose:
         print(message)
+sprint(user_input, 3)
+
+if user_input["version"]:
+    sprint("version 0.1", 0)
+    exit(0)
+
 
 if stdin.isatty():
     sprint("Error, you must provide subdomains in stdin")
@@ -91,8 +99,8 @@ for i in range(len(lines)):
     url = obj_lines[i]["protocol"] + obj_lines[i]["domain"] + \
         obj_lines[i]["path"] + ("/" if obj_lines[i]["path"][-1] != "/" else "")
     
-    target_url_list.append(url + "package.json")
-    target_url_list.append(url + "package-lock.json")
+    target_url_list.append(url + "package.json" + str(user_input["a"]))
+    target_url_list.append(url + "package-lock.json" + str(user_input["a"]))
 
 sprint("Sending requests to the target")
 target_res_list = send_async_request(target_url_list, user_input["th"], user_input["to"])
