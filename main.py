@@ -8,6 +8,7 @@ import argparse
 
 # pip install grequests
 # check if package.json or package-lock.json already exists in the url
+# show the urls that use the affected pluggin
 
 parser = argparse.ArgumentParser(description='Get subdomains from stdin and search for dependency confusion.')
 parser.add_argument("-th", help="Number of concurrence threads", default=10, type=int)
@@ -127,6 +128,8 @@ for i in range(len(target_res_list)):
     if not is_json == True or not len(json_res) > 0 or json_res == {}:
         continue
 
+    ## It is a json, I should be able to write :p
+    json_res["url"] = res.url
     all_json_res.append(json_res)
     # OK, here we have a valid json
     # but is it really what we want?
@@ -158,4 +161,17 @@ npm_res_list = send_async_request(checked_pkgs_links,  user_input["th"], user_in
 
 for r in npm_res_list:
     if r.status_code != 200:
-        print(str(r.url) if user_input["link"] else str(r.url).replace("https://registry.npmjs.org/", ""))
+        u = str(r.url).replace("https://registry.npmjs.org/", "")
+        print(str(r.url) if user_input["link"] else u)
+        
+        # go throgh all the valid responses
+        for json_res in all_json_res:
+            # go throgh all the properties of this response
+            for x in json_res:
+                # check if it is a valid property
+                if x in ["devDependencies", "dependencies"]:
+                    # go throgh all packages of this property
+                    for pkg in json_res[x]:
+                        # check if the package is affected
+                        if pkg == u:
+                            sprint("=>" + json_res["url"])
