@@ -10,25 +10,36 @@ import argparse
 # check if package.json or package-lock.json already exists in the url
 # show the urls that use the affected pluggin
 
-parser = argparse.ArgumentParser(description='Get subdomains from stdin and search for dependency confusion.')
-parser.add_argument("-th", help="Number of concurrence threads", default=10, type=int)
-parser.add_argument("-to", help="Timeout (in seconds)",  default=15, type=int, required=False)
-parser.add_argument("-a", help="String to append in the end of url. E.g: -a=\"?token=foo\"",  default="", required=False)
-parser.add_argument("-v", help="Verbose mode", type=int, default=0, required=False)
-parser.add_argument("--version", help="Show version and exit", action="store_true")
-parser.add_argument("-s", help="Silent, only shows the useful results", action="store_true")
-parser.add_argument("-link", help="Show full link to the npm possible vulnerable package", action="store_true")
+parser = argparse.ArgumentParser(
+    description='Get subdomains from stdin and search for dependency confusion.')
+parser.add_argument(
+    "-th", help="Number of concurrence threads", default=10, type=int)
+parser.add_argument("-to", help="Timeout (in seconds)",
+                    default=15, type=int, required=False)
+parser.add_argument(
+    "-a", help="String to append in the end of url. E.g: -a=\"?token=foo\"",  default="", required=False)
+parser.add_argument("-v", help="Verbose mode",
+                    type=int, default=0, required=False)
+parser.add_argument(
+    "--version", help="Show version and exit", action="store_true")
+parser.add_argument(
+    "-s", help="Silent, only shows the useful results", action="store_true")
+parser.add_argument(
+    "-link", help="Show full link to the npm possible vulnerable package", action="store_true")
+parser.add_argument(
+    "-p", help="Not include the path provided in the url", action="store_true")
 
 args = parser.parse_args()
 user_input = vars(args)
 
 
-
-def sprint(message, require_verbose:int = 0):
+def sprint(message, require_verbose: int = 0):
     if user_input["s"] == True:
         return
     if user_input["v"] >= require_verbose:
         print(message)
+
+
 sprint(user_input, 3)
 
 if user_input["version"]:
@@ -42,7 +53,8 @@ if stdin.isatty():
 
 lines = stdin.readlines()
 
-def send_async_request(urls: list, threads: int = 10, timeout:int = 15):
+
+def send_async_request(urls: list, threads: int = 10, timeout: int = 15):
     all_responses = []
     req_list_for_threads = []
 
@@ -51,7 +63,7 @@ def send_async_request(urls: list, threads: int = 10, timeout:int = 15):
         req_list_for_threads.append(cr)
 
         sprint(cr.url, 2)
-        # every time the number of request reches the concurret threads limit, 
+        # every time the number of request reches the concurret threads limit,
         # it is going to send and wait for the response, and only then send more requests
         if i % threads == 0 or len(urls) == i - 1:
             res_list = grequests.map(req_list_for_threads)
@@ -98,13 +110,15 @@ for i in range(len(lines)):
         obj_lines[i]["path"] = s.group(3)
 
     url = obj_lines[i]["protocol"] + obj_lines[i]["domain"] + \
-        obj_lines[i]["path"] + ("/" if obj_lines[i]["path"][-1] != "/" else "")
-    
+        obj_lines[i]["path"] if not user_input["p"] else "" + \
+        ("/" if obj_lines[i]["path"][-1] != "/" else "")
+
     target_url_list.append(url + "package.json" + str(user_input["a"]))
     target_url_list.append(url + "package-lock.json" + str(user_input["a"]))
 
 sprint("Sending requests to the target")
-target_res_list = send_async_request(target_url_list, user_input["th"], user_input["to"])
+target_res_list = send_async_request(
+    target_url_list, user_input["th"], user_input["to"])
 
 # loop through the responses and check if they are valid package or package-lock files
 # and if they do, send a request using npm api checking if all the packages exists
@@ -128,7 +142,7 @@ for i in range(len(target_res_list)):
     if not is_json == True or not len(json_res) > 0 or json_res == {}:
         continue
 
-    ## It is a json, I should be able to write :p
+    # It is a json, I should be able to write :p
     json_res["url"] = res.url
     all_json_res.append(json_res)
     # OK, here we have a valid json
@@ -142,7 +156,8 @@ for i in range(len(target_res_list)):
                     # print(pkg)
                     if pkg not in checked_pkgs:
                         checked_pkgs.append(pkg)
-                        checked_pkgs_links.append("https://registry.npmjs.org/"+pkg)
+                        checked_pkgs_links.append(
+                            "https://registry.npmjs.org/"+pkg)
 
                     else:
                         sprint("PACKAGE ALREDY INCLUDED " + pkg, 3)
@@ -157,13 +172,14 @@ if not len(checked_pkgs):
 
 
 sprint("Sending requests to NPM api")
-npm_res_list = send_async_request(checked_pkgs_links,  user_input["th"], user_input["to"])
+npm_res_list = send_async_request(
+    checked_pkgs_links,  user_input["th"], user_input["to"])
 
 for r in npm_res_list:
     if r.status_code != 200:
         u = str(r.url).replace("https://registry.npmjs.org/", "")
         print(str(r.url) if user_input["link"] else u)
-        
+
         # go throgh all the valid responses
         for json_res in all_json_res:
             # go throgh all the properties of this response
