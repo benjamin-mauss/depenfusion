@@ -1,9 +1,0 @@
-https://controls.platform.account.www.microsoft.com/
-https://calc.microsoft.com/
-https://admin.healthbot-dev.microsoft.com/
-https://01-a-apac.prd.attend.teams.microsoft.com/
-https://secureit.microsoft.com/
-https://s05-noam.prd.attend.teams.microsoft.com/
-https://kepler-test.powerplatform.microsoft.com/
-https://jarvisjx-int.cp.microsoft.com/
-https://asimov-xflow-ppe.microsoft.com/
