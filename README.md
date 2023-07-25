@@ -1,98 +1,75 @@
-![Untitled](https://user-images.githubusercontent.com/86640585/135770826-57d80968-675a-40fd-a156-b0b7fa08e972.png)
+# DepenFusion: A Powerful Pentesting Tool for Detecting Dependency Confusion Vulnerabilities in Node.js
 
-
-The pentest tool made for find depencency confusion vulnerabilities in node js.
+![DepenFusion Logo](https://user-images.githubusercontent.com/86640585/135770826-57d80968-675a-40fd-a156-b0b7fa08e972.png)
 
 ## What is DepenFusion?
 
-DepenFusion is a multithread <a href="https://en.wikipedia.org/wiki/Penetration_test">pentest</a> tool made for find <a href="https://medium.com/@alex.birsan/dependency-confusion-4a5d60fec610">depencency confusion</a> vulnerabilities in node js (npm).
+DepenFusion is an advanced, multithreaded penetration testing (pentest) tool designed specifically to identify and analyze dependency confusion vulnerabilities in Node.js (npm) projects.
 
-## How to use?
+## Key Features:
 
-This tool is easy to use.
-You must provide the subdomains/domains you want to analyse in the <a href="https://www.howtogeek.com/435903/what-are-stdin-stdout-and-stderr-on-linux/">stdin</a>.
+- **Automated Vulnerability Detection:** DepenFusion is designed to automatically scan and identify dependency confusion vulnerabilities in Node.js projects.
+- **User-Friendly Interface:** With an easy-to-use command-line interface, the tool simplifies the process of scanning subdomains/domains for potential vulnerabilities.
+- **Smart URL Handling:** DepenFusion intelligently handles variations in URLs, ensuring smooth processing even with different formats.
+- **Support for Multithreading:** The tool's multithreading capability allows for faster and more efficient scanning of multiple targets simultaneously.
+- **Silent Mode and Verbose Options:** DepenFusion provides the flexibility of silent mode, which displays only useful results, or verbose mode for more detailed output.
+- **Integration Possibilities:** DepenFusion can be easily integrated with other security tools to enhance vulnerability assessment capabilities.
 
-Example:
+## How to Use DepenFusion?
 
-```bash
-cat subdomains.txt | python3 ./main.py
-```
+1. **Installation:**
 
-## How to install?
+   - Ensure you have both Git and Python 3 installed on your system.
+   - Download the DepenFusion tool using the command:
 
-- First, you make sure that you have git and python3 installed.
-- Download the tool using the command
+     ```bash
+     git clone github.com/benjamin-mauss/depenfusion
+     ```
 
-```bash
-git clone github.com/gato-louco-cv/depenfusion
-```
+   - Change to the DepenFusion directory:
 
-- Change the directory to depenfusion
+     ```bash
+     cd depenfusion
+     ```
 
-```bash
-cd depenfusion
-```
+   - Install the necessary dependencies:
 
-- Install the depencencies using
+     ```bash
+     pip3 install -r requirements.txt
+     ```
+2. **Scanning Subdomains/Domains:**
+  
+    Use the following command to analyze subdomains/domains by providing them in the standard input (stdin):
+    
+    ```bash
+    cat subdomains.txt | python3 ./main.py
+    ```
 
-```bash
-pip3 install -r requirements.txt
-```
 
-- Run the program using
+3. **Advanced Usage:**
 
-```bash
-cat subdomains.txt | python3 ./main.py
-```
+    DepenFusion offers several optional command-line arguments for advanced users. To view these options, run:
+    
+    ```bash
+    python3 ./main.py --help
+    ```
+  
+  
+    These options include adjusting the number of concurrent threads, setting a timeout period, appending a custom string to URLs, enabling verbose mode, and more.
 
-## Advanced usage
+## How DepenFusion Works:
 
-You may want to check --help.
+DepenFusion employs a systematic approach to identify dependency confusion vulnerabilities:
 
-```bash
-$ python3 ./main.py --help
-usage: main.py [-h] [-th TH] [-to TO] [-a A] [-v V] [--version] [-s] [-link] [-p]
+1. **Async Request and File Analysis:** The tool sends asynchronous requests to the target URLs, appending `package.json` and `package-lock.json` to each URL. It then checks if these files exist and are valid.
+2. **Dependency Extraction:** If valid package files are found, DepenFusion extracts the dependencies listed within them.
+3. **Validation through NPM API:** DepenFusion proceeds to verify the existence of the extracted dependencies by querying the npm API.
 
-Get subdomains from stdin and search for dependency confusion.
+## Future Enhancements:
 
-optional arguments:
-  -h, --help  show this help message and exit
-  -th TH      Number of concurrence threads (default=10)
-  -to TO      Timeout (in seconds) (default=15)
-  -a A        String to append in the end of url. E.g: -a="?token=foo" (default="")
-  -v V        Verbose mode (0 to 3) (default=0))
-  --version   Show version and exit
-  -s          Silent, only shows the useful results (default=False)
-  -link       Show full link to the npm possible vulnerable package (default=False)
-  -p          Not include the path provided in the url (default=False, include the path)
-```
+In the future, DepenFusion is expected to expand its capabilities by incorporating the following improvements:
 
-## Good to know
+- **Support for Additional Package Managers:** DepenFusion aims to include support for other popular package managers such as pip for Python and gem for Ruby.
+- **GoLang Implementation:** Development is underway to create a GoLang version of DepenFusion, enabling even faster and more efficient scanning.
 
-This tool is smart. If you provide
-
-```txt
-https://controls.platform.account.www.microsoft.com
-http://controls.platform.account.www.microsoft.com/
-controls.platform.account.www.microsoft.com/
-controls.platform.account.www.microsoft.com/private
-controls.platform.account.www.microsoft.com/private/
-```
-
-Both are going to work fine.
-If you use the `-p` option, the path won't be included. So, in the example above, `/private` and `/private/` are going to be ignored.
-
-Also, `-s` is intent to be used if you are using depenfusion along with ther tool.
-
-## How it works
-
-Basically it:
-
-- Async Request to the target appending `package.json` and `package-lock.json` to the url.
-- Check if it is a valid file. If so, extract the dependencies.
-- Request to npm api check if the dependencies exist.
-
-## Future
-
-- Support pip (python) and gem (ruby)
-- Make it using GoLang
+DepenFusion is a valuable tool for identifying and mitigating dependency confusion vulnerabilities in Node.js projects, enhancing the security posture of developers and organizations worldwide.
